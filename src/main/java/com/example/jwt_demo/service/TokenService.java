@@ -16,11 +16,11 @@ public class TokenService {
 
     private final TokenRepository tokenRepository;
 
-    public void saveUserToken(User user, String jwtToken) {
+    public void saveUserToken(User user, String jwtToken, TokenType tokenType) {
         var token = Token.builder()
                 .user(user)
                 .token(jwtToken)
-                .tokenType(TokenType.BEARER)
+                .tokenType(tokenType)
                 .expired(false)
                 .revoked(false)
                 .build();
@@ -28,7 +28,9 @@ public class TokenService {
     }
 
     public void revokeAllUserTokens(User user) {
-        List<Token> validUserTokens = tokenRepository.findAllByUserAndExpiredFalseAndRevokedFalse(user);
+        List<Token> validUserTokens = tokenRepository.findAllByUserAndExpiredFalseAndRevokedFalse(user).stream()
+                .filter(t -> t.getTokenType() == TokenType.ACCESS)
+                .toList();
         if (validUserTokens.isEmpty())
             return;
 

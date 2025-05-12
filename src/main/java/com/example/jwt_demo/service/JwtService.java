@@ -23,10 +23,10 @@ public class JwtService {
     private String jwtSecret;
 
     @Value("${jwt.expiration}")
-    private long jwtExpiration; // en milisegundos
+    private long jwtExpiration;
 
     @Value("${jwt.refresh-expiration}")
-    private long refreshExpiration; // en milisegundos
+    private long refreshExpiration;
 
     private Key key;
 
