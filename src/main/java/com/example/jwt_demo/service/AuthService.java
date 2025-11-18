@@ -1,11 +1,14 @@
 package com.example.jwt_demo.service;
 
-
 import com.example.jwt_demo.dto.*;
-import com.example.jwt_demo.model.Token;
+import com.example.jwt_demo.exception.BusinessValidationException;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +27,18 @@ public class AuthService {
     private final TokenRepository tokenRepository;
 
     public AuthResponse register(RegisterRequest request) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (userService.existsByEmail(request.getEmail())) {
+            errors.put("email", "The email address is already registered.");
+        }
+
+        if (userService.existsByUsername(request.getUsername())) {
+            errors.put("username", "The username is already registered.");
+        }
+        if (!errors.isEmpty()) {
+            throw new BusinessValidationException(errors);
+        }
         var user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
