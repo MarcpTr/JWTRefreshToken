@@ -1,6 +1,5 @@
 package com.example.jwt_demo.config;
 
-
 import com.example.jwt_demo.repository.TokenRepository;
 import com.example.jwt_demo.service.JwtService;
 import com.example.jwt_demo.service.UserService;
@@ -15,7 +14,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.jwt_demo.model.TokenType;
-
 import java.io.IOException;
 
 @Component
