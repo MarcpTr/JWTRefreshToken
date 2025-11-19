@@ -1,6 +1,5 @@
 package com.example.jwt_demo.service;
 
-
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -8,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.example.jwt_demo.exception.BusinessValidationException;
 
 import java.security.Key;
 import java.util.Date;
@@ -39,8 +40,10 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) throws JwtException {
+
         final Claims claims = extractAllClaims(token);
+
         return resolver.apply(claims);
     }
 
@@ -75,16 +78,13 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token) {
-        try {
+    private Claims extractAllClaims(String token) throws JwtException {
+        {
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (JwtException e) {
-            log.error("Error al validar el token: {}", e.getMessage());
-            throw e;
         }
     }
 }

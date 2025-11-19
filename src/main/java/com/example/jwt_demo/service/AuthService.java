@@ -4,6 +4,8 @@ import com.example.jwt_demo.dto.*;
 import com.example.jwt_demo.exception.BusinessValidationException;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.repository.TokenRepository;
+
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -11,8 +13,11 @@ import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.TokenType;
 
 @Service
@@ -55,10 +60,18 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        Map<String, String> errors = new HashMap<>();
+
         var authToken = new UsernamePasswordAuthenticationToken(
                 request.getUsernameOrEmail(), request.getPassword());
-
-        authenticationManager.authenticate(authToken);
+        try {
+            authenticationManager.authenticate(authToken);
+        } catch (AuthenticationException e) {
+            errors.put("error", "access  denied");
+        }
+        if (!errors.isEmpty()) {
+            throw new BusinessValidationException(errors);
+        }
 
         var user = (User) userService.loadUserByUsername(request.getUsernameOrEmail());
 
@@ -73,26 +86,43 @@ public class AuthService {
     }
 
     public AuthResponse refresh(RefreshRequest request) {
-        final String refreshToken = request.getRefreshToken();
-        final String username = jwtService.extractUsername(refreshToken);
-        var user = (User) userService.loadUserByUsername(username);
+        Map<String, String> errors = new HashMap<>();
 
-        var storedToken = tokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("Refresh token no encontrado en base de datos"));
+        final String refreshToken = request.getRefreshToken();
+        String username = "";
+
+        try {
+            username = jwtService.extractUsername(refreshToken);
+        } catch (JwtException e) {
+            errors.put("error", "refresh toked bad format");
+        }
+        if (!errors.isEmpty()) {
+            throw new BusinessValidationException(errors);
+        }
+        User user = (User) userService.loadUserByUsername(username);
+
+        Token storedToken = tokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> {
+                    errors.put("error", "token not found");
+                    throw new BusinessValidationException(errors);
+                });
 
         if (storedToken.isExpired() || storedToken.isRevoked()) {
-            throw new RuntimeException("El refresh token está expirado o ha sido revocado");
+            errors.put("error", "refresh token expired or revoked");
+            throw new BusinessValidationException(errors);
         }
 
         if (storedToken.getTokenType() != TokenType.REFRESH) {
-            throw new RuntimeException("Token inválido: se esperaba uno de tipo REFRESH");
+             errors.put("error", "Incorrect token type, expected: refresh");
+                    throw new BusinessValidationException(errors);
         }
 
         if (!jwtService.isTokenValid(refreshToken, user)) {
-            throw new RuntimeException("Refresh token inválido");
+            errors.put("error", "Token not valid");
+                    throw new BusinessValidationException(errors);
         }
 
-        var accessToken = jwtService.generateToken(user);
+        String accessToken = jwtService.generateToken(user);
         tokenService.revokeAllUserTokens(user);
         tokenService.saveUserToken(user, accessToken, TokenType.ACCESS);
 
