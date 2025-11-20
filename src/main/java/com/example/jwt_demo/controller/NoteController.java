@@ -1,6 +1,5 @@
 package com.example.jwt_demo.controller;
 
-
 import com.example.jwt_demo.dto.NoteRequest;
 import com.example.jwt_demo.dto.NoteResponse;
 import com.example.jwt_demo.model.User;
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

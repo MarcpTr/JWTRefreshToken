@@ -4,19 +4,15 @@ import com.example.jwt_demo.dto.*;
 import com.example.jwt_demo.exception.BusinessValidationException;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.repository.TokenRepository;
-
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.TokenType;
 
@@ -54,6 +50,7 @@ public class AuthService {
 
         var accessToken = jwtService.generateToken(savedUser);
         var refreshToken = jwtService.generateRefreshToken(savedUser);
+        tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
         tokenService.saveUserToken(savedUser, accessToken, TokenType.ACCESS);
 
         return new AuthResponse(accessToken, refreshToken);
@@ -75,7 +72,7 @@ public class AuthService {
 
         var user = (User) userService.loadUserByUsername(request.getUsernameOrEmail());
 
-        tokenService.revokeAllUserTokens(user);
+        //tokenService.revokeAllUserTokens(user);
 
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -88,9 +85,9 @@ public class AuthService {
     public AuthResponse refresh(RefreshRequest request) {
         Map<String, String> errors = new HashMap<>();
 
-        final String refreshToken = request.getRefreshToken();
+        String refreshToken = request.getRefreshToken();
         String username = "";
-
+        
         try {
             username = jwtService.extractUsername(refreshToken);
         } catch (JwtException e) {
@@ -123,8 +120,10 @@ public class AuthService {
         }
 
         String accessToken = jwtService.generateToken(user);
-        tokenService.revokeAllUserTokens(user);
+        refreshToken = jwtService.generateRefreshToken(user);
+        //tokenService.revokeAllUserTokens(user);
         tokenService.saveUserToken(user, accessToken, TokenType.ACCESS);
+        tokenService.saveUserToken(user, refreshToken, TokenType.REFRESH);
 
         return new AuthResponse(accessToken, refreshToken);
     }

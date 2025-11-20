@@ -13,7 +13,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class RegisterRequest {
-    @NotBlank(message = "Username is required")
+    @Pattern(regexp = "^[a-zA-Z0-9]{2,10}$", message = "The username must contain between 2 and 10 characters and can only include letters and numbers.")
     private String username;
     @Email(message = "email not valid")
     @NotBlank(message = "email is required")

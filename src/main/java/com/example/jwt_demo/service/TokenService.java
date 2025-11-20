@@ -1,6 +1,5 @@
 package com.example.jwt_demo.service;
 
-
 import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.TokenType;
 import com.example.jwt_demo.model.User;
