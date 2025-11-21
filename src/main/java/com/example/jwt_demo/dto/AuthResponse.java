@@ -1,6 +1,5 @@
 package com.example.jwt_demo.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

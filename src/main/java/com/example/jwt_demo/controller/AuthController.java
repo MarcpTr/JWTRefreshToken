@@ -1,6 +1,5 @@
 package com.example.jwt_demo.controller;
 
-
 import com.example.jwt_demo.dto.*;
 import com.example.jwt_demo.service.AuthService;
 import jakarta.validation.Valid;
