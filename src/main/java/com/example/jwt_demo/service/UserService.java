@@ -1,6 +1,5 @@
 package com.example.jwt_demo.service;
 
-
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

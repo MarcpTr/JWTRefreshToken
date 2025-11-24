@@ -3,13 +3,10 @@ package com.example.jwt_demo.controller;
 import com.example.jwt_demo.dto.*;
 import com.example.jwt_demo.service.AuthService;
 import com.example.jwt_demo.service.YoutubeService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

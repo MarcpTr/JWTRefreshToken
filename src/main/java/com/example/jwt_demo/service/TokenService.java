@@ -6,7 +6,6 @@ import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service

@@ -7,7 +7,6 @@ import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
