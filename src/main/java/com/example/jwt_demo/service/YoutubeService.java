@@ -73,17 +73,15 @@ public class YoutubeService {
     public List<Map<String, String>> searchChannelsByName(String query) throws Exception {
         YouTube youtube = getService();
 
-        // 1️⃣ Buscar canales por nombre
         YouTube.Search.List searchRequest = youtube.search().list(List.of("snippet"));
         searchRequest.setQ(query);
         searchRequest.setType(List.of("channel"));
         searchRequest.setMaxResults(50L);
-        searchRequest.setOrder("relevance"); // por relevancia
+        searchRequest.setOrder("relevance");
         searchRequest.setKey(apiKey);
 
         SearchListResponse searchResponse = searchRequest.execute();
 
-        // 2️⃣ Extraer IDs de canales
         List<String> channelIds = searchResponse.getItems()
                 .stream()
                 .map(item -> item.getSnippet().getChannelId())
@@ -91,7 +89,6 @@ public class YoutubeService {
 
         if (channelIds.isEmpty()) return Collections.emptyList();
 
-        // 3️⃣ Obtener estadísticas de los canales
         YouTube.Channels.List channelRequest = youtube.channels()
                 .list(List.of("snippet", "statistics"));
         channelRequest.setId(channelIds);
@@ -99,7 +96,6 @@ public class YoutubeService {
 
         ChannelListResponse channelListResponse = channelRequest.execute();
 
-        // 4️⃣ Construir lista y ordenar por número de suscriptores
         List<Map<String, String>> channels = new ArrayList<>();
         for (Channel channel : channelListResponse.getItems()) {
             Map<String, String> c = new HashMap<>();
@@ -111,7 +107,6 @@ public class YoutubeService {
             channels.add(c);
         }
 
-        // Ordenar descendente por número de suscriptores
         channels.sort((a, b) -> Long.compare(
                 Long.parseLong(b.get("subscriberCount")),
                 Long.parseLong(a.get("subscriberCount"))
