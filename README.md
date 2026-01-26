@@ -5,7 +5,7 @@ This is a secure RESTful API built with **Spring Boot**, **Spring Security 6**, 
 
 ---
 
-## ✅ Features
+##  Features
 
 - User registration and login
 - JWT authentication with:
@@ -20,7 +20,7 @@ This is a secure RESTful API built with **Spring Boot**, **Spring Security 6**, 
 
 ---
 
-## 🧱 Technologies
+##  Technologies
 
 - Java 17+
 - Spring Boot
@@ -31,7 +31,7 @@ This is a secure RESTful API built with **Spring Boot**, **Spring Security 6**, 
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 src  
 ├── main  
@@ -111,7 +111,7 @@ You can use the following SQL:
     CONSTRAINT fk_note_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);
 
 
-## 🔐 Security Notes
+##  Security Notes
 
 -   Only `ACCESS` tokens are allowed to access protected endpoints like `/api/notes`
     
