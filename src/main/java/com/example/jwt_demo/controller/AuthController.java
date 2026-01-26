@@ -32,25 +32,4 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
     }
-
-
-    @GetMapping("/youtube")
-    public ResponseEntity<List<Map<String, String>>> youtube(@Valid @RequestBody channelRequest request) {
-        try {
-            return ResponseEntity.ok(youtubeService.getChannelVideos(request.getIdChannel()));
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
-        private final YoutubeService youtubeService;
-  @GetMapping("/channels")
-    public ResponseEntity<?> searchChannels(@RequestBody String name) {
-        try {
-            return ResponseEntity.ok(youtubeService.searchChannelsByName(name));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
-        }
-    }
 }
