@@ -5,6 +5,8 @@ import com.example.jwt_demo.model.TokenType;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -37,5 +39,8 @@ public class TokenService {
             token.setRevoked(true);
         });
         tokenRepository.saveAll(validUserTokens);
+    }
+    public Token findByToken(String token){
+        return tokenRepository.findByToken(token).orElseThrow(() -> new BadCredentialsException("JWT revocado o inexistente"));
     }
 }
