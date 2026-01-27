@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import com.example.jwt_demo.model.User;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,17 +45,22 @@ public class JwtService {
         return resolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, jwtExpiration);
-    }
-
     public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, refreshExpiration);
+        return generateToken( userDetails, refreshExpiration);
     }
 
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, long expirationTime) {
+    public String generateAccessToken(UserDetails userDetails) {
+
+        return generateToken( userDetails, jwtExpiration);
+    }
+
+    private String generateToken( UserDetails userDetails, long expirationTime) {
+        Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof User ) {
+            claims.put("role", ((User) userDetails).getRole().name());
+        }
         return Jwts.builder()
-                .setClaims(extraClaims)
+                .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))

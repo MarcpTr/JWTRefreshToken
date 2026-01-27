@@ -3,6 +3,8 @@ package com.example.jwt_demo.service;
 import com.example.jwt_demo.dto.*;
 import com.example.jwt_demo.exception.BusinessValidationException;
 import com.example.jwt_demo.model.User;
+import com.example.jwt_demo.model.enums.Role;
+import com.example.jwt_demo.model.enums.TokenType;
 import com.example.jwt_demo.repository.TokenRepository;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.jwt_demo.model.Token;
-import com.example.jwt_demo.model.TokenType;
 
 @Service
 @RequiredArgsConstructor
@@ -44,11 +45,11 @@ public class AuthService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.ROLE_USER)
                 .build();
 
-        var savedUser = userService.save(user);
-
-        var accessToken = jwtService.generateToken(savedUser);
+        User savedUser = userService.save(user);
+        var accessToken = jwtService.generateAccessToken(savedUser);
         var refreshToken = jwtService.generateRefreshToken(savedUser);
         tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
         tokenService.saveUserToken(savedUser, accessToken, TokenType.ACCESS);
@@ -72,9 +73,7 @@ public class AuthService {
 
         var user = (User) userService.loadUserByUsername(request.getUsernameOrEmail());
 
-        //tokenService.revokeAllUserTokens(user);
-
-        var accessToken = jwtService.generateToken(user);
+        var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         tokenService.saveUserToken(user, accessToken, TokenType.ACCESS);
         tokenService.saveUserToken(user, refreshToken, TokenType.REFRESH);
@@ -87,7 +86,7 @@ public class AuthService {
 
         String refreshToken = request.getRefreshToken();
         String username = "";
-        
+
         try {
             username = jwtService.extractUsername(refreshToken);
         } catch (JwtException e) {
@@ -110,18 +109,17 @@ public class AuthService {
         }
 
         if (storedToken.getTokenType() != TokenType.REFRESH) {
-             errors.put("error", "Incorrect token type, expected: refresh");
-                    throw new BusinessValidationException(errors);
+            errors.put("error", "Incorrect token type, expected: refresh");
+            throw new BusinessValidationException(errors);
         }
 
         if (!jwtService.isTokenValid(refreshToken, user)) {
             errors.put("error", "Token not valid");
-                    throw new BusinessValidationException(errors);
+            throw new BusinessValidationException(errors);
         }
 
-        String accessToken = jwtService.generateToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
         refreshToken = jwtService.generateRefreshToken(user);
-        //tokenService.revokeAllUserTokens(user);
         tokenService.saveUserToken(user, accessToken, TokenType.ACCESS);
         tokenService.saveUserToken(user, refreshToken, TokenType.REFRESH);
 

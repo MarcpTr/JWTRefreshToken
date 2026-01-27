@@ -1,4 +1,5 @@
 package com.example.jwt_demo.exception;
+
 import java.util.Map;
 
 public class BusinessValidationException extends RuntimeException {

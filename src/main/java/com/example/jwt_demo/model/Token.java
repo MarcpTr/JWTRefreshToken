@@ -1,5 +1,6 @@
 package com.example.jwt_demo.model;
 
+import com.example.jwt_demo.model.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.*;
 

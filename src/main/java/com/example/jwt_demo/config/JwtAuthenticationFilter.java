@@ -1,6 +1,5 @@
 package com.example.jwt_demo.config;
 
-import com.example.jwt_demo.repository.TokenRepository;
 import com.example.jwt_demo.service.JwtService;
 import com.example.jwt_demo.service.TokenService;
 import com.example.jwt_demo.service.UserService;
@@ -15,9 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.example.jwt_demo.model.Token;
-import com.example.jwt_demo.model.TokenType;
+import com.example.jwt_demo.model.enums.TokenType;
 import java.io.IOException;
 
 @Component
@@ -47,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.loadUserByUsername(username);
             Token storedToken = tokenService.findByToken(jwt);
-            if ( !storedToken.isExpired() &&
+            if (!storedToken.isExpired() &&
                     !storedToken.isRevoked() &&
                     storedToken.getTokenType() == TokenType.ACCESS) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

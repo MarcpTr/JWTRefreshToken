@@ -1,4 +1,4 @@
-package com.example.jwt_demo.model;
+package com.example.jwt_demo.model.enums;
 
 public enum TokenType {
     BEARER,
