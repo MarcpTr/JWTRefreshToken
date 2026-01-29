@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import com.example.jwt_demo.model.User;
 
 @RestController
@@ -26,15 +28,8 @@ public class TestController {
     }
 
     @GetMapping("/whoami")
-    public String whoAmI() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null)
-            return "No hay usuario autenticado";
-
-        Object principal = auth.getPrincipal();
-        if (principal instanceof User user) {
-            return "Usuario: " + user.getUsername() + ", Rol: " + user.getRole().name();
-        }
-        return "Principal no es un User válido";
+    public String whoAmI(@AuthenticationPrincipal User user) {
+         return "Usuario: " + user.getUsername() +
+           ", Rol: " + user.getRole().name();
     }
 }
