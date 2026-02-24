@@ -24,8 +24,6 @@ The project demonstrates:
 
 ---
 
----
-
 # Features
 
 ## Authentication & Authorization
