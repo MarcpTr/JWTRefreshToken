@@ -41,7 +41,7 @@ public class AuthService {
         if (!errors.isEmpty()) {
             throw new BusinessValidationException(errors);
         }
-        var user = User.builder()
+        User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
