@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,16 +63,15 @@ public class AuthService {
 
         var authToken = new UsernamePasswordAuthenticationToken(
                 request.getUsernameOrEmail(), request.getPassword());
+        Authentication auth;
         try {
-            authenticationManager.authenticate(authToken);
+            auth = authenticationManager.authenticate(authToken);
         } catch (AuthenticationException e) {
             errors.put("error", "access  denied");
-        }
-        if (!errors.isEmpty()) {
             throw new BusinessValidationException(errors);
         }
 
-        var user = (User) userService.loadUserByUsername(request.getUsernameOrEmail());
+        var user = (User) auth.getPrincipal();
 
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
