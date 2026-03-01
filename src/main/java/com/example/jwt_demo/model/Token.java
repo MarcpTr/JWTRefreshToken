@@ -1,5 +1,7 @@
 package com.example.jwt_demo.model;
 
+import java.time.LocalDateTime;
+
 import com.example.jwt_demo.model.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +31,8 @@ public class Token {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TokenType tokenType;
+
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

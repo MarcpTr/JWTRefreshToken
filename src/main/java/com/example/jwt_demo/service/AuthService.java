@@ -28,6 +28,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final TokenRepository tokenRepository;
+    private final SessionPolicyService sessionPolicyService;
 
     public AuthResponse register(RegisterRequest request) {
         Map<String, String> errors = new HashMap<>();
@@ -50,6 +51,8 @@ public class AuthService {
                 .build();
 
         User savedUser = userService.save(user);
+        int maxSessions = sessionPolicyService.getMaxSessions();
+        tokenService.enforceSessionLimit(user, maxSessions);
         var accessToken = jwtService.generateAccessToken(savedUser);
         var refreshToken = jwtService.generateRefreshToken(savedUser);
         tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
@@ -72,6 +75,9 @@ public class AuthService {
         }
 
         var user = (User) auth.getPrincipal();
+
+        int maxSessions = sessionPolicyService.getMaxSessions();
+        tokenService.enforceSessionLimit(user, maxSessions);
 
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
