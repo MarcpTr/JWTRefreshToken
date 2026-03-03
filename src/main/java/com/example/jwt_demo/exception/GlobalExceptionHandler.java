@@ -1,5 +1,10 @@
 package com.example.jwt_demo.exception;
-
+/**
+ * Manejador global de excepciones REST.
+ *
+ * Captura errores de validación (DTO y reglas de negocio)
+ * y devuelve respuestas HTTP 400 con el detalle de los errores.
+ */
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;

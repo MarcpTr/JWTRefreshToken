@@ -2,12 +2,9 @@ package com.example.jwt_demo.controller;
 
 import com.example.jwt_demo.dto.*;
 import com.example.jwt_demo.service.AuthService;
-import com.example.jwt_demo.service.SessionPolicyService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
@@ -16,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final SessionPolicyService sessionPolicyService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -31,13 +27,5 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
-    }
-      @PutMapping("/security/max-sessions")
-      @PreAuthorize("hasRole('ADMIN')")
-     public ResponseEntity<Void> updateMaxSessions(
-            @RequestBody UpdateMaxSessionsRequest request) {
-
-        sessionPolicyService.updateMaxSessions(request.maxSessions());
-        return ResponseEntity.noContent().build();
     }
 }

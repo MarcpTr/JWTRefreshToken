@@ -1,5 +1,6 @@
 package com.example.jwt_demo.service;
 
+import com.example.jwt_demo.dto.ActiveSessionResponse;
 import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.model.enums.TokenType;
@@ -7,6 +8,8 @@ import com.example.jwt_demo.repository.TokenRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +52,53 @@ public class TokenService {
                 .orElseThrow(() -> new BadCredentialsException("JWT revocado o inexistente"));
     }
 
+    public List<ActiveSessionResponse> getActiveSessions(User user) {
+
+        return tokenRepository
+                .findAllByUserAndTokenTypeAndExpiredFalseAndRevokedFalseOrderByCreatedAtDesc(
+                        user,
+                        TokenType.REFRESH)
+                .stream()
+                .map(token -> new ActiveSessionResponse(
+                        token.getId(),
+                        token.getCreatedAt().toString()))
+                .toList();
+    }
+
+    @Transactional
+    public void revokeSession(User user, Long tokenId) {
+
+        Token token = tokenRepository.findById(tokenId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        if (!token.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Not your session");
+        }
+
+        token.setExpired(true);
+        token.setRevoked(true);
+
+        tokenRepository.save(token);
+    }
+
+    @Transactional
+    public void revokeAllExcept(User user, String currentRefreshToken) {
+
+        List<Token> tokens = tokenRepository
+                .findAllByUserAndTokenTypeAndExpiredFalseAndRevokedFalse(
+                        user,
+                        TokenType.REFRESH);
+
+        for (Token token : tokens) {
+            if (!token.getToken().equals(currentRefreshToken)) {
+                token.setExpired(true);
+                token.setRevoked(true);
+            }
+        }
+
+        tokenRepository.saveAll(tokens);
+    }
+
     @Transactional
     public void enforceSessionLimit(User user, int maxSessions) {
 
@@ -62,8 +112,10 @@ public class TokenService {
         }
 
         // Ordenar por fecha más antigua primero
-        activeRefreshTokens.sort(Comparator.comparing(Token::getCreatedAt));
-
+        activeRefreshTokens.sort(
+                Comparator.comparing(
+                        Token::getCreatedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())));
         int tokensToRevoke = activeRefreshTokens.size() - maxSessions + 1;
 
         for (int i = 0; i < tokensToRevoke; i++) {

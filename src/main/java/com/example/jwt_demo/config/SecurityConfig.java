@@ -1,5 +1,12 @@
 package com.example.jwt_demo.config;
-
+/**
+ * Configuración principal de Spring Security.
+ *
+ * Define una seguridad stateless basada en JWT, deshabilita CSRF,
+ * configura las reglas de acceso por roles y registra el filtro
+ * JwtAuthenticationFilter antes del filtro de autenticación estándar.
+ *
+ */
 import com.example.jwt_demo.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/test/user").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/test/admin").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/test/whoami").authenticated()
+                        .requestMatchers("/api/test/whoami", "/api/sessions/**").authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

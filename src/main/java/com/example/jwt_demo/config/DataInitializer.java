@@ -1,5 +1,13 @@
 package com.example.jwt_demo.config;
-
+/*
+*
+*
+*
+*Crea el usuario Admin en la base de datos  
+*si este no existe al arrancar springboot.
+*
+*
+*/
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;

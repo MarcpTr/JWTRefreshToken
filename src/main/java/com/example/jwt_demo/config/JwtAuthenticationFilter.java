@@ -1,5 +1,12 @@
 package com.example.jwt_demo.config;
-
+/**
+ * Filtro que valida el JWT enviado en el header "Authorization".
+ * 
+ * Extrae el token, verifica que no esté expirado ni revocado y,
+ * si es válido, autentica al usuario en el SecurityContext de Spring Security.
+ * 
+ * Se ejecuta una vez por cada petición HTTP.
+ */
 import com.example.jwt_demo.service.JwtService;
 import com.example.jwt_demo.service.TokenService;
 import com.example.jwt_demo.service.UserService;
