@@ -18,8 +18,8 @@ public class NoteService {
 
     public void createNote(NoteRequest request, User user) {
         Note note = Note.builder()
-                .title(request.getTitle())
-                .content(request.getContent())
+                .title(request.title())
+                .content(request.content())
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .build();

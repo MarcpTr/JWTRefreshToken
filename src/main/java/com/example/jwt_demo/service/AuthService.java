@@ -33,20 +33,20 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         Map<String, String> errors = new HashMap<>();
 
-        if (userService.existsByEmail(request.getEmail())) {
+        if (userService.existsByEmail(request.email())) {
             errors.put("email", "The email address is already registered.");
         }
 
-        if (userService.existsByUsername(request.getUsername())) {
+        if (userService.existsByUsername(request.username())) {
             errors.put("username", "The username is already registered.");
         }
         if (!errors.isEmpty()) {
             throw new BusinessValidationException(errors);
         }
         User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .username(request.username())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
                 .role(Role.ROLE_USER)
                 .build();
 
@@ -65,7 +65,7 @@ public class AuthService {
         Map<String, String> errors = new HashMap<>();
 
         var authToken = new UsernamePasswordAuthenticationToken(
-                request.getUsernameOrEmail(), request.getPassword());
+                request.usernameOrEmail(), request.password());
         Authentication auth;
         try {
             auth = authenticationManager.authenticate(authToken);
@@ -90,7 +90,7 @@ public class AuthService {
     public AuthResponse refresh(RefreshRequest request) {
         Map<String, String> errors = new HashMap<>();
 
-        String refreshToken = request.getRefreshToken();
+        String refreshToken = request.refreshToken();
         String username = "";
 
         try {

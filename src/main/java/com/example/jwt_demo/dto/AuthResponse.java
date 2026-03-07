@@ -1,11 +1,6 @@
 package com.example.jwt_demo.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public class AuthResponse {
-    private String accessToken;
-    private String refreshToken;
-}
+public record AuthResponse(
+    String accessToken,
+    String refreshToken
+) {}
