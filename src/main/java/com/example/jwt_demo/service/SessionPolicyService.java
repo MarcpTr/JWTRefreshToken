@@ -1,10 +1,8 @@
 package com.example.jwt_demo.service;
 
 import org.springframework.stereotype.Service;
-
 import com.example.jwt_demo.model.AppSetting;
 import com.example.jwt_demo.repository.AppSettingRepository;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
