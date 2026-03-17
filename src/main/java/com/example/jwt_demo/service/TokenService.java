@@ -5,14 +5,11 @@ import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.model.enums.TokenType;
 import com.example.jwt_demo.repository.TokenRepository;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
-
 import java.util.Comparator;
 import java.util.List;
 

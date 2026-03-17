@@ -3,7 +3,6 @@ package com.example.jwt_demo.repository;
 import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.model.enums.TokenType;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
