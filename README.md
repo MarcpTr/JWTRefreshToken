@@ -2,8 +2,7 @@
 # JWT Refresh Authentication API
 
 ### Spring Boot 3 • Spring Security 6 • JWT • MariaDB
-![]([https://raw.githubusercontent.com/MarcpTr/SpringBoot-JWT-Template/main/code.webp](https://raw.githubusercontent.com/MarcpTr/SpringBoot-JWT-Template/refs/heads/main/code.webp))
-
+![](https://raw.githubusercontent.com/MarcpTr/SpringBoot-JWT-Template/refs/heads/main/code.webp)
 A production-style secure RESTful API implementing **JWT Authentication (Access + Refresh Tokens)** with **Spring Boot 3** and **Spring Security 6**.
 
 The project demonstrates:
