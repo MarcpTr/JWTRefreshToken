@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 public record RegisterRequest(
 
   @Pattern(
-      regexp = "^[a-zA-Z0-9]{2,10}$",
+    regexp = "^[a-zA-Z0-9](?:[a-zA-Z0-9_]{0,8}[a-zA-Z0-9])?$",
       message = "The username must contain between 2 and 10 characters and can only include letters and numbers."
   )
   String username,
