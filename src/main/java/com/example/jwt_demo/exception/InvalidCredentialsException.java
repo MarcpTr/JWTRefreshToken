@@ -7,12 +7,12 @@ package com.example.jwt_demo.exception;
  */
 import java.util.Map;
 
-public class BusinessValidationException extends RuntimeException {
+public class InvalidCredentialsException  extends RuntimeException {
 
     private final Map<String, String> errors;
 
-    public BusinessValidationException(Map<String, String> errors) {
-        super("Validation failed");
+    public InvalidCredentialsException (Map<String, String> errors) {
+        super("Invalid credentials");
         this.errors = errors;
     }
 
