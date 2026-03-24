@@ -53,10 +53,9 @@ public class AuthService {
                 .build();
 
         User savedUser = userService.save(user);
-        int maxSessions = sessionPolicyService.getMaxSessions();
-        tokenService.enforceSessionLimit(user, maxSessions);
-        var accessToken = jwtService.generateAccessToken(savedUser);
-        var refreshToken = jwtService.generateRefreshToken(savedUser);
+    
+        String  accessToken = jwtService.generateAccessToken(savedUser);
+        String  refreshToken = jwtService.generateRefreshToken(savedUser);
         tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
         tokenService.saveUserToken(savedUser, accessToken, TokenType.ACCESS);
 
