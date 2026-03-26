@@ -1,5 +1,6 @@
 package com.example.jwt_demo.controller;
 
+import com.example.jwt_demo.dto.ApiResponse;
 import com.example.jwt_demo.dto.NoteRequest;
 import com.example.jwt_demo.dto.NoteResponse;
 import com.example.jwt_demo.model.User;
@@ -19,14 +20,13 @@ public class NoteController {
     private final NoteService noteService;
 
     @PostMapping
-    public ResponseEntity<Void> createNote(@RequestBody NoteRequest request,
+    public ResponseEntity<ApiResponse<NoteResponse>> createNote(@RequestBody NoteRequest request,
                                            @AuthenticationPrincipal User user) {
-        noteService.createNote(request, user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.ok(noteService.createNote(request, user)));
     }
 
     @GetMapping
-    public ResponseEntity<List<NoteResponse>> getUserNotes(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(noteService.getUserNotes(user));
+    public ResponseEntity<ApiResponse<List<NoteResponse>>> getUserNotes(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(ApiResponse.ok(noteService.getUserNotes(user)));
     }
 }

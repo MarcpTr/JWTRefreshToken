@@ -8,16 +8,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<Token, Long> {
-    List<Token> findAllByUserAndExpiredFalseAndRevokedFalse(User user);
+        Optional<Token> findByJti(String jti);
 
-    List<Token> findAllByUserAndTokenTypeAndExpiredFalseAndRevokedFalse(
-            User user,
-            TokenType tokenType);
+        List<Token> findAllByUserAndExpiredFalseAndRevokedFalse(User user);
 
-    Optional<Token> findByToken(String token);
+        List<Token> findAllByUserAndTokenTypeAndExpiredFalseAndRevokedFalse(
+                        User user,
+                        TokenType tokenType);
 
-    List<Token> findAllByUserAndTokenTypeAndExpiredFalseAndRevokedFalseOrderByCreatedAtDesc(
-            User user,
-            TokenType tokenType);
-            
+        Optional<Token> findByToken(String token);
+
+        List<Token> findAllByUserAndTokenTypeAndExpiredFalseAndRevokedFalseOrderByCreatedAtDesc(
+                        User user,
+                        TokenType tokenType);
+
 }

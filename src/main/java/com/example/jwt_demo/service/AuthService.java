@@ -8,6 +8,7 @@ import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.model.enums.Role;
 import com.example.jwt_demo.model.enums.TokenType;
 import com.example.jwt_demo.repository.TokenRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
@@ -42,9 +43,11 @@ public class AuthService {
         if (userService.existsByUsername(request.username())) {
             errors.put("username", "The username is already registered.");
         }
+
         if (!errors.isEmpty()) {
-            throw new ResourceAlreadyExistsException (errors);
+            throw new ResourceAlreadyExistsException(errors);
         }
+
         User user = User.builder()
                 .username(request.username())
                 .email(request.email())
@@ -53,84 +56,94 @@ public class AuthService {
                 .build();
 
         User savedUser = userService.save(user);
-    
-        String  accessToken = jwtService.generateAccessToken(savedUser);
-        String  refreshToken = jwtService.generateRefreshToken(savedUser);
-        tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
-        tokenService.saveUserToken(savedUser, accessToken, TokenType.ACCESS);
 
-        return new AuthResponse(new AuthResponse.User(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail()),
-                accessToken, refreshToken);
+        tokenService.revokeAllUserTokens(savedUser);
+
+        String accessToken = jwtService.generateAccessToken(savedUser);
+        String refreshToken = jwtService.generateRefreshToken(savedUser);
+
+        tokenService.saveUserToken(savedUser, accessToken, TokenType.ACCESS);
+        tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
+
+        return new AuthResponse(
+                new AuthResponse.User(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail()),
+                accessToken,
+                refreshToken);
     }
 
     public AuthResponse login(LoginRequest request) {
+
         Map<String, String> errors = new HashMap<>();
 
-        var authToken = new UsernamePasswordAuthenticationToken(
-                request.usernameOrEmail(), request.password());
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
+                request.usernameOrEmail(),
+                request.password());
+            
         Authentication auth;
         try {
-            auth = authenticationManager.authenticate(authToken);
+            auth = authenticationManager.authenticate(authRequest);
         } catch (AuthenticationException e) {
             errors.put("error", "access denied, bad credentials");
             throw new InvalidCredentialsException(errors);
         }
 
-        var user = (User) auth.getPrincipal();
+        User user = (User) auth.getPrincipal();
 
         int maxSessions = sessionPolicyService.getMaxSessions();
+
         tokenService.enforceSessionLimit(user, maxSessions);
 
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+      
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
         tokenService.saveUserToken(user, accessToken, TokenType.ACCESS);
         tokenService.saveUserToken(user, refreshToken, TokenType.REFRESH);
 
-        return new AuthResponse(new AuthResponse.User(user.getId(), user.getUsername(), user.getEmail()),accessToken, refreshToken);
+        return new AuthResponse(
+                new AuthResponse.User(user.getId(), user.getUsername(), user.getEmail()),
+                accessToken,
+                refreshToken);
     }
 
     public RefreshResponse refresh(RefreshRequest request) {
-        Map<String, String> errors = new HashMap<>();
-
         String refreshToken = request.refreshToken();
-        String username = "";
 
+        Claims claims;
         try {
-            username = jwtService.extractUsername(refreshToken);
+            claims = jwtService.extractClaim(refreshToken, c -> c);
         } catch (JwtException e) {
-            errors.put("error", "refresh toked bad format");
+            throw new JwtAuthenticationException(Map.of("error", "Invalid refresh token"));
         }
-        if (!errors.isEmpty()) {
-            throw new JwtAuthenticationException(errors);
-        }
+
+        String username = claims.getSubject();
+        String jti = claims.getId();
+
         User user = (User) userService.loadUserByUsername(username);
 
-        Token storedToken = tokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> {
-                    errors.put("error", "token not found");
-                    throw new JwtAuthenticationException(errors);
-                });
+        Token storedToken = tokenRepository.findByJti(jti)
+                .orElseThrow(() -> new JwtAuthenticationException(Map.of("error", "Token not found")));
 
         if (storedToken.isExpired() || storedToken.isRevoked()) {
-            errors.put("error", "refresh token expired or revoked");
-            throw new JwtAuthenticationException(errors);
+            throw new JwtAuthenticationException(Map.of("error", "Token expired or revoked"));
         }
 
         if (storedToken.getTokenType() != TokenType.REFRESH) {
-            errors.put("error", "Incorrect token type, expected: refresh");
-            throw new JwtAuthenticationException(errors);
+            throw new JwtAuthenticationException(Map.of("error", "Invalid token type"));
         }
 
-        if (!jwtService.isTokenValid(refreshToken, user)) {
-            errors.put("error", "Token not valid");
-            throw new JwtAuthenticationException(errors);
+        if (!jwtService.isTokenValid(refreshToken, user, TokenType.REFRESH)) {
+            throw new JwtAuthenticationException(Map.of("error", "Invalid token"));
         }
 
-        String accessToken = jwtService.generateAccessToken(user);
-        refreshToken = jwtService.generateRefreshToken(user);
-        tokenService.saveUserToken(user, accessToken, TokenType.ACCESS);
-        tokenService.saveUserToken(user, refreshToken, TokenType.REFRESH);
+        tokenService.revokeToken(refreshToken);
 
-        return new RefreshResponse(accessToken, refreshToken);
+        String newAccessToken = jwtService.generateAccessToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        tokenService.saveUserToken(user, newAccessToken, TokenType.ACCESS);
+        tokenService.saveUserToken(user, newRefreshToken, TokenType.REFRESH);
+
+        return new RefreshResponse(newAccessToken, newRefreshToken);
     }
 }

@@ -18,12 +18,16 @@ import java.util.List;
 public class TokenService {
 
     private final TokenRepository tokenRepository;
+    private final JwtService jwtService;
 
     public void saveUserToken(User user, String jwtToken, TokenType tokenType) {
+        String jti = jwtService.extractJti(jwtToken);
+
         var token = Token.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(tokenType)
+                .jti(jti)
                 .expired(false)
                 .revoked(false)
                 .build();
@@ -31,17 +35,22 @@ public class TokenService {
     }
 
     public void revokeAllUserTokens(User user) {
-        List<Token> validUserTokens = tokenRepository.findAllByUserAndExpiredFalseAndRevokedFalse(user).stream()
-                .filter(t -> t.getTokenType() == TokenType.ACCESS)
-                .toList();
-        if (validUserTokens.isEmpty())
+        List<Token> validTokens = tokenRepository.findAllByUserAndExpiredFalseAndRevokedFalse(user);
+        if (validTokens.isEmpty())
             return;
-
-        validUserTokens.forEach(token -> {
+        validTokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
         });
-        tokenRepository.saveAll(validUserTokens);
+        tokenRepository.saveAll(validTokens);
+    }
+
+    public void revokeToken(String tokenValue) {
+        tokenRepository.findByToken(tokenValue).ifPresent(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+            tokenRepository.save(token);
+        });
     }
 
     public Token findByToken(String token) {
@@ -108,7 +117,6 @@ public class TokenService {
             return;
         }
 
-        // Ordenar por fecha más antigua primero
         activeRefreshTokens.sort(
                 Comparator.comparing(
                         Token::getCreatedAt,

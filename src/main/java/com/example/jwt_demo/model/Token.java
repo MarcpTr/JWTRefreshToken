@@ -33,6 +33,7 @@ public class Token {
     private TokenType tokenType;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    private String jti;
 
     @PrePersist
     protected void onCreate() {

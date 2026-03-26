@@ -16,14 +16,15 @@ public class NoteService {
 
     private final NoteRepository noteRepository;
 
-    public void createNote(NoteRequest request, User user) {
+    public NoteResponse createNote(NoteRequest request, User user) {
         Note note = Note.builder()
                 .title(request.title())
                 .content(request.content())
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .build();
-        noteRepository.save(note);
+                note= noteRepository.save(note);
+        return new NoteResponse(note.getId(), note.getTitle(), note.getContent(), note.getCreatedAt());
     }
 
     public List<NoteResponse> getUserNotes(User user) {
