@@ -8,7 +8,7 @@ public record ApiResponse<T>(
         return new ApiResponse<>(true, data, null);
     }
 
-    public static <T> ApiResponse<T> fail(String code, T message) {
-        return new ApiResponse<>(false, null, new ApiError<T>(code, message));
+    public static <T> ApiResponse<T> fail(String code, String message, T details) {
+        return new ApiResponse<>(false, null, new ApiError<T>(code, message, details));
     }
 }

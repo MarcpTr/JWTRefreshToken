@@ -21,32 +21,32 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
                 
-        return ResponseEntity.badRequest().body(ApiResponse.fail("Arguments_Not_Valid",errors));
+        return ResponseEntity.badRequest().body(ApiResponse.fail("VALIDATION_ERROR","Faltan campos o son incorrectos", errors));
     }
     
 
     @ExceptionHandler(FieldValidationException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleFieldValidation(FieldValidationException ex) {
-        return ResponseEntity.status(HttpStatus.SC_UNPROCESSABLE_ENTITY).body(ApiResponse.fail("INVALID_INPUT",ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_UNPROCESSABLE_ENTITY).body(ApiResponse.fail("INVALID_INPUT","fsfsf", ex.getErrors()));
     }
     
       @ExceptionHandler(MissingFieldsException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleMissingFields(MissingFieldsException ex) {
-        return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(ApiResponse.fail("MISSING_REQUIRED_FIELD",ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body(ApiResponse.fail("MISSING_REQUIRED_FIELD","fsfsf", ex.getErrors()));
     }
     
         @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleResourceAlreadyExist(ResourceAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.SC_CONFLICT).body(ApiResponse.fail("RESOURCE_ALREADY_EXISTS",ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_CONFLICT).body(ApiResponse.fail("RESOURCE_ALREADY_EXISTS","Estos Datos ya estan siendo utilizados", ex.getErrors()));
     }
     
         @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("INVALID_CREDENTIALS",ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("INVALID_CREDENTIALS","Los datos no son correctos", ex.getErrors()));
     }
     
        @ExceptionHandler(JwtAuthenticationException .class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleJwtAuthenticationException (JwtAuthenticationException  ex) {
-        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("TOKEN_INVALID",ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("TOKEN_INVALID","Este token no es valido", ex.getErrors()));
     }
 }
