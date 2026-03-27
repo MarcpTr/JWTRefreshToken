@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
                 
-        return ResponseEntity.badRequest().body(ApiResponse.fail("VALIDATION_ERROR","Faltan campos o son incorrectos", errors));
+        return ResponseEntity.badRequest().body(ApiResponse.fail("VALIDATION_ERROR","Required fields are missing or contain invalid values", errors));
     }
     
 
@@ -37,16 +37,16 @@ public class GlobalExceptionHandler {
     
         @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleResourceAlreadyExist(ResourceAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.SC_CONFLICT).body(ApiResponse.fail("RESOURCE_ALREADY_EXISTS","Estos Datos ya estan siendo utilizados", ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_CONFLICT).body(ApiResponse.fail("RESOURCE_ALREADY_EXISTS","The provided data is already in use", ex.getErrors()));
     }
     
         @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("INVALID_CREDENTIALS","Los datos no son correctos", ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("INVALID_CREDENTIALS","The provided credentials are invalid", ex.getErrors()));
     }
     
        @ExceptionHandler(JwtAuthenticationException .class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleJwtAuthenticationException (JwtAuthenticationException  ex) {
-        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("TOKEN_INVALID","Este token no es valido", ex.getErrors()));
+        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(ApiResponse.fail("TOKEN_INVALID","The provided token is invalid", ex.getErrors()));
     }
 }
