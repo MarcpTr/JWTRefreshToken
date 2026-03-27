@@ -2,6 +2,7 @@ package com.example.jwt_demo.config;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
             AccessDeniedException accessDeniedException) throws IOException, ServletException {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setStatus(HttpStatus.FORBIDDEN.value());
                 response.setContentType(("application/json"));
                 ApiResponse<Void> body= new ApiResponse<>(false, null, new ApiError<>("FORBIDDEN", "Acces denied", null));
                 mapper.writeValue(response.getOutputStream(), body);

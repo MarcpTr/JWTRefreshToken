@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.jwt_demo.dto.ActiveSessionResponse;
+import com.example.jwt_demo.dto.ApiResponse;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,12 @@ public class SessionController {
     private final TokenService tokenService;
 
     @GetMapping
-    public List<ActiveSessionResponse> getMySessions(
+    public  ResponseEntity<ApiResponse<List<ActiveSessionResponse>>> getMySessions(
             Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();
-        return tokenService.getActiveSessions(user);
+                return ResponseEntity.ok(ApiResponse.ok(tokenService.getActiveSessions(user)));
+
     }
 
     @DeleteMapping("/{id}")
@@ -35,7 +37,7 @@ public class SessionController {
 
         User user = (User) authentication.getPrincipal();
         tokenService.revokeSession(user, id);
-
+                
         return ResponseEntity.noContent().build();
     }
 }
