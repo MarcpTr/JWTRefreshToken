@@ -1,6 +1,8 @@
 package com.example.jwt_demo.service;
 
 import com.example.jwt_demo.dto.ActiveSessionResponse;
+import com.example.jwt_demo.exception.JwtAuthenticationException;
+import com.example.jwt_demo.exception.ResourceNotFoundException;
 import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.model.enums.TokenType;
@@ -12,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +78,8 @@ public class TokenService {
     public void revokeSession(User user, Long tokenId) {
 
         Token token = tokenRepository.findById(tokenId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(Map.of("error", "ID session not found")));
+
 
         if (!token.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("Not your session");

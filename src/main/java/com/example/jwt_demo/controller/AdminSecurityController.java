@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.jwt_demo.dto.UpdateMaxSessionsRequest;
 import com.example.jwt_demo.service.SessionPolicyService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -19,7 +21,7 @@ public class AdminSecurityController {
 
     @PutMapping("/max-sessions")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> updateMaxSessions(
+    public ResponseEntity<Void> updateMaxSessions(@Valid
             @RequestBody UpdateMaxSessionsRequest request) {
 
         sessionPolicyService.updateMaxSessions(request.maxSessions());
