@@ -92,6 +92,35 @@ public class GlobalExceptionHandler {
                                                 errors));
         }
 
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidJson(HttpMessageNotReadableException ex) {
+
+                return ResponseEntity.badRequest().body(
+                                ApiResponse.fail(
+                                                "INVALID_JSON",
+                                                "Malformed JSON request",
+                                                null));
+        }
+
+        @ExceptionHandler(MissingServletRequestParameterException.class)
+        public ResponseEntity<ApiResponse<Map<String, String>>> handleMissingParams(
+                        MissingServletRequestParameterException ex) {
+
+                Map<String, String> errors = new HashMap<>();
+                errors.put(ex.getParameterName(), "Parameter is required");
+
+                return ResponseEntity.badRequest().body(
+                                ApiResponse.fail("MISSING_PARAMETER", "Missing request parameter", errors));
+        }
+
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ApiResponse<Map<String, String>>> handleAccessDenied(AccessDeniedException ex) {
+
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(ApiResponse.fail("ACCESS_DENIED", "You do not have permission", null));
+        }
+
+        // Custom Exceptions
         @ExceptionHandler(FieldValidationException.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleFieldValidation(FieldValidationException ex) {
                 return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -135,39 +164,8 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.fail("RESOURCE_NOT_FOUND", "Resource not found", ex.getErrors()));
         }
 
-        @ExceptionHandler(HttpMessageNotReadableException.class)
-        public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidJson(HttpMessageNotReadableException ex) {
-
-                return ResponseEntity.badRequest().body(
-                                ApiResponse.fail(
-                                                "INVALID_JSON",
-                                                "Malformed JSON request",
-                                                null));
-        }
-
-        @ExceptionHandler(MissingServletRequestParameterException.class)
-        public ResponseEntity<ApiResponse<Map<String, String>>> handleMissingParams(
-                        MissingServletRequestParameterException ex) {
-
-                Map<String, String> errors = new HashMap<>();
-                errors.put(ex.getParameterName(), "Parameter is required");
-
-                return ResponseEntity.badRequest().body(
-                                ApiResponse.fail("MISSING_PARAMETER", "Missing request parameter", errors));
-        }
-
-        @ExceptionHandler(AccessDeniedException.class)
-        public ResponseEntity<ApiResponse<Map<String, String>>> handleAccessDenied(AccessDeniedException ex) {
-
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .body(ApiResponse.fail("ACCESS_DENIED", "You do not have permission", null));
-        }
-
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleGenericException(Exception ex) {
-
-                // log importante 
-                ex.printStackTrace();
 
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body(ApiResponse.fail(
