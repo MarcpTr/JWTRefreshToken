@@ -82,13 +82,13 @@ public class GlobalExceptionHandler {
                 String supportedMethods = ex.getSupportedMethods() != null
                                 ? Arrays.toString(ex.getSupportedMethods())
                                 : "N/A";
-                errors.put("method", "Método no soportado: " + method);
-                errors.put("allowed", "Métodos permitidos: " + supportedMethods);
+                errors.put("method", "Method not supported: " + method);
+                errors.put("allowed", "Allowed methods: " + supportedMethods);
 
                 return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(
                                 ApiResponse.fail(
                                                 "METHOD_NOT_ALLOWED",
-                                                "El método HTTP no está permitido para este endpoint",
+                                                "The HTTP method is not allowed for this endpoint",
                                                 errors));
         }
 
@@ -170,7 +170,7 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body(ApiResponse.fail(
                                                 "INTERNAL_SERVER_ERROR",
-                                                "Ha ocurrido un error inesperado",
+                                                "An unexpected error has occurred",
                                                 null));
         }
 }
