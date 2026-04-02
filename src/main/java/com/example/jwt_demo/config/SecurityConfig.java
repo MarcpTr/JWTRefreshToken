@@ -9,7 +9,6 @@ package com.example.jwt_demo.config;
  *
  */
 import com.example.jwt_demo.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
