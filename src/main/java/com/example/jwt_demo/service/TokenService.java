@@ -80,7 +80,6 @@ public class TokenService {
         Token token = tokenRepository.findById(tokenId)
                 .orElseThrow(() -> new ResourceNotFoundException(Map.of("error", "ID session not found")));
 
-
         if (!token.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("Not your session");
         }

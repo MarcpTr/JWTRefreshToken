@@ -67,6 +67,8 @@ public class JwtService {
         return Jwts.builder()
                 .claim("role", ((User) userDetails).getRole().name())
                 .claim("type", type.name())
+                .setHeaderParam("typ", "JWT")
+                .setHeaderParam("version", "v1")
                 .setId(UUID.randomUUID().toString())
                 .setIssuer(issuer)
                 .setSubject(userDetails.getUsername())
