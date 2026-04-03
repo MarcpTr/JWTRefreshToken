@@ -44,4 +44,12 @@ public class SessionController {
                 
         return ResponseEntity.noContent().build();
     }
+      @DeleteMapping()
+    public ResponseEntity<Void> revokeAllSession(Authentication authentication) {
+
+        User user = (User) authentication.getPrincipal();
+        tokenService.revokeAllUserTokens(user);
+                
+        return ResponseEntity.noContent().build();
+    }
 }

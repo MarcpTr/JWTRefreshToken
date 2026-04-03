@@ -52,19 +52,27 @@ public class JwtService {
 
         return resolver.apply(claims);
     }
-
-    public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(userDetails, refreshExpiration, TokenType.REFRESH);
+ public String extractRefreshJti(String token) {
+        return extractClaim(token, claims -> claims.get("refresh_jti", String.class));
+    }
+   public String generateRefreshToken(UserDetails userDetails) {
+        return generateToken(userDetails, refreshExpiration, TokenType.REFRESH, null);
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+     public String generateAccessToken(UserDetails userDetails, String refreshToken) {
 
-        return generateToken(userDetails, jwtExpiration, TokenType.ACCESS);
+        String refreshJti = extractJti(refreshToken);
+
+        return generateToken(userDetails, jwtExpiration, TokenType.ACCESS, refreshJti);
     }
 
-    private String generateToken(UserDetails userDetails, long expirationTime, TokenType type) {
 
-        return Jwts.builder()
+     private String generateToken(UserDetails userDetails,
+                                 long expirationTime,
+                                 TokenType type,
+                                 String refreshJti) {
+
+        JwtBuilder builder = Jwts.builder()
                 .claim("role", ((User) userDetails).getRole().name())
                 .claim("type", type.name())
                 .setHeaderParam("typ", "JWT")
@@ -74,7 +82,13 @@ public class JwtService {
                 .setSubject(userDetails.getUsername())
                 .setAudience("api-client")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime));
+
+        if (type == TokenType.ACCESS && refreshJti != null) {
+            builder.claim("refresh_jti", refreshJti);
+        }
+
+        return builder
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

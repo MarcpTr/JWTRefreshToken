@@ -59,10 +59,9 @@ public class AuthService {
 
         tokenService.revokeAllUserTokens(savedUser);
 
-        String accessToken = jwtService.generateAccessToken(savedUser);
         String refreshToken = jwtService.generateRefreshToken(savedUser);
+        String accessToken = jwtService.generateAccessToken(savedUser, refreshToken);
 
-        tokenService.saveUserToken(savedUser, accessToken, TokenType.ACCESS);
         tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
 
         return new AuthResponse(
@@ -78,7 +77,7 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
                 request.usernameOrEmail(),
                 request.password());
-            
+
         Authentication auth;
         try {
             auth = authenticationManager.authenticate(authRequest);
@@ -93,11 +92,9 @@ public class AuthService {
 
         tokenService.enforceSessionLimit(user, maxSessions);
 
-      
-        String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
+        String accessToken = jwtService.generateAccessToken(user, refreshToken);
 
-        tokenService.saveUserToken(user, accessToken, TokenType.ACCESS);
         tokenService.saveUserToken(user, refreshToken, TokenType.REFRESH);
 
         return new AuthResponse(
@@ -138,10 +135,9 @@ public class AuthService {
 
         tokenService.revokeToken(refreshToken);
 
-        String newAccessToken = jwtService.generateAccessToken(user);
+        String newAccessToken = jwtService.generateAccessToken(user, refreshToken);
         String newRefreshToken = jwtService.generateRefreshToken(user);
 
-        tokenService.saveUserToken(user, newAccessToken, TokenType.ACCESS);
         tokenService.saveUserToken(user, newRefreshToken, TokenType.REFRESH);
 
         return new RefreshResponse(newAccessToken, newRefreshToken);

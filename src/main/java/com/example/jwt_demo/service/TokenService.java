@@ -1,7 +1,6 @@
 package com.example.jwt_demo.service;
 
 import com.example.jwt_demo.dto.ActiveSessionResponse;
-import com.example.jwt_demo.exception.JwtAuthenticationException;
 import com.example.jwt_demo.exception.ResourceNotFoundException;
 import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.User;
@@ -24,6 +23,9 @@ public class TokenService {
     private final JwtService jwtService;
 
     public void saveUserToken(User user, String jwtToken, TokenType tokenType) {
+        if (tokenType != TokenType.REFRESH) {
+        return;
+    }
         String jti = jwtService.extractJti(jwtToken);
 
         var token = Token.builder()
@@ -36,7 +38,10 @@ public class TokenService {
                 .build();
         tokenRepository.save(token);
     }
-
+public Token findByJti(String jti) {
+    return tokenRepository.findByJti(jti)
+            .orElseThrow(() -> new BadCredentialsException("Invalid session"));
+}
     public void revokeAllUserTokens(User user) {
         List<Token> validTokens = tokenRepository.findAllByUserAndExpiredFalseAndRevokedFalse(user);
         if (validTokens.isEmpty())
