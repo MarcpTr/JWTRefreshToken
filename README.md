@@ -3,6 +3,7 @@
 ### Spring Boot 3 • Spring Security 6 • JWT • MariaDB
 A production-ready, secure RESTful API implementing **JWT Authentication (Access + Refresh Tokens)** using **Spring Boot 3** and **Spring Security 6**.
 [Try it](https://api-playground.marcpericot.es/)
+![playground](https://marcpericot.es/images/projects/jwt.webp "playground")
 
 The project demonstrates:
 * Stateless authentication
