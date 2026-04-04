@@ -1,16 +1,14 @@
-
 # JWT Refresh Authentication API
 
 ### Spring Boot 3 • Spring Security 6 • JWT • MariaDB
-A production-style secure RESTful API implementing **JWT Authentication (Access + Refresh Tokens)** with **Spring Boot 3** and **Spring Security 6**.
+A production-ready, secure RESTful API implementing **JWT Authentication (Access + Refresh Tokens)** using **Spring Boot 3** and **Spring Security 6**.
 
 The project demonstrates:
-
 * Stateless authentication
-* Token revocation & persistence
+* Token revocation and persistence
 * Role-Based Access Control (RBAC)
 * User-scoped resources (TODO Notes)
-* Clean layered architecture
+* Clean, layered architecture
 # Tech Stack
 
 * **Java 17+**
@@ -21,23 +19,20 @@ The project demonstrates:
 * **Spring Data JPA**
 * **Maven**
 
----
+
 
 # Features
 
 ## Authentication & Authorization
 
-* User registration & login
+* User registration and login
 * JWT-based authentication:
-
   * Short-lived **Access Tokens**
   * Long-lived **Refresh Tokens**
 * Refresh token endpoint
 * Token revocation stored in database
 * Role-Based Access Control (RBAC)
 * Stateless security configuration (no HTTP sessions)
-
----
 ## User authentication
 Base path:
 ```
@@ -46,15 +41,33 @@ Base path:
 | Endpoint | HTTP Method | Access Level  | Description                                  |
 | -------- | ----------- | ------------- | -------------------------------------------- |
 | `/register`      | POST        | Public | Register a new user account |
-| `/login`      | POST        |  Public|Authenticate a user and return an access token.      |
+| `/login`      | POST        |  Public| Authenticate a user and return an access token      |
 | `/refresh`      | POST        | Public| Generate new access and refresh tokens using a refresh token      |
 
 ---
+## Sessions
+Base path:
+```
+/api/sessions
+```
+| Endpoint | HTTP Method | Access Level  | Description                                  |
+| -------- | ----------- | ------------- | -------------------------------------------- |
+| `/`      | GET| Authenticated | List all active sessions |
+| `/`      | DELETE|  Authenticated |Remove all active sessions      |
+| `/{id}`      | DELETE        | Authenticated | Remove a specific session    |
+
+## Admin 
+Base path:
+```
+/api/admin
+```
+| Endpoint | HTTP Method | Access Level  | Description                                  |
+| -------- | ----------- | ------------- | -------------------------------------------- |
+| `/security/max-sessions`      | PUT| ROLE_ADMIN | Set the maximum number of active sessions per user |
 
 ## Notes Module (User-Scoped Resource)
 
 Authenticated users can:
-
 * Create personal notes
 * Retrieve only their own notes
 * Access protected endpoints using a valid Access Token
@@ -66,9 +79,9 @@ Base path:
 | Endpoint | HTTP Method | Access Level  | Description                                  |
 | -------- | ----------- | ------------- | -------------------------------------------- |
 | `/`      | POST        | Authenticated | Create a new note for the authenticated user |
-| `/`      | GET         | Authenticated | Get all notes of the authenticated user      |
+| `/`      | GET         | Authenticated | Retrieve all notes of the authenticated user      |
 
----
+
 
 ## RBAC Demonstration Endpoints
 
@@ -87,7 +100,6 @@ Base path:
 
 These endpoints demonstrate fine-grained authorization using Spring Security method-level security.
 
----
 # Architecture
 
 Layered architecture following clean separation of concerns:
@@ -104,8 +116,6 @@ src/main/java/com/example/jwt_demo
 ├── service       → AuthService, JwtService,TokenService , TokenService, NoteService
 └── JwtRefreshAuthApplication.java
 ```
-
----
 
 # Configuration
 
@@ -131,8 +141,6 @@ admin.username=Admin
 admin.password=u8SDDu322asy8DA
 admin.email=admin@admin.es
 ```
-
----
 
 # Database Structure
 
@@ -176,11 +184,7 @@ admin.email=admin@admin.es
 * Only **Refresh Tokens** are accepted at `/api/auth/refresh`
 * Tokens are persisted in the database
 * Tokens can be:
-
   * Revoked
   * Marked as expired
 * Access tokens are rotated on refresh
 * Stateless authentication (no session storage)
-
----
-
