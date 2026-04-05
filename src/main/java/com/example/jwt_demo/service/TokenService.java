@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -80,7 +81,7 @@ public Token findByJti(String jti) {
     }
 
     @Transactional
-    public void revokeSession(User user, Long tokenId) {
+    public void revokeSession(User user, UUID tokenId) {
 
         Token token = tokenRepository.findById(tokenId)
                 .orElseThrow(() -> new ResourceNotFoundException(Map.of("error", "ID session not found")));

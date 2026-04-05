@@ -6,8 +6,9 @@ import com.example.jwt_demo.model.enums.TokenType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface TokenRepository extends JpaRepository<Token, Long> {
+public interface TokenRepository extends JpaRepository<Token, UUID> {
         Optional<Token> findByJti(String jti);
 
         List<Token> findAllByUserAndExpiredFalseAndRevokedFalse(User user);

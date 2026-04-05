@@ -1,6 +1,8 @@
 package com.example.jwt_demo.controller;
 
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -36,7 +38,7 @@ public class SessionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> revokeSession(
-            @PathVariable  @Positive(message = "El id debe ser un número positivo") Long id,
+            @PathVariable  UUID id,
             Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();

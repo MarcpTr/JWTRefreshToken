@@ -7,4 +7,7 @@ import com.example.jwt_demo.model.AppSetting;
 public interface AppSettingRepository extends JpaRepository<AppSetting, Long> {
 
     Optional<AppSetting> findByConfigKey(String key);
+        boolean existsByConfigKey(String key);
+
+
 }
