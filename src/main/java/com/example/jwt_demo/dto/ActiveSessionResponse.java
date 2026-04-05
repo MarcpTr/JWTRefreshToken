@@ -1,6 +1,8 @@
 package com.example.jwt_demo.dto;
 
+import java.util.UUID;
+
 public record ActiveSessionResponse(
-        Long tokenId,
+        UUID  tokenId,
         String createdAt
 ) {}

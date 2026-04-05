@@ -3,6 +3,7 @@ package com.example.jwt_demo.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "notes")
@@ -14,8 +15,8 @@ import java.time.LocalDateTime;
 public class Note {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID  id;
 
     private String title;
 

@@ -1,6 +1,7 @@
 package com.example.jwt_demo.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.example.jwt_demo.model.enums.TokenType;
 import jakarta.persistence.*;
@@ -16,8 +17,8 @@ import lombok.*;
 public class Token {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID  id;
 
     @Column(nullable = false, unique = true, length = 512)
     private String token;

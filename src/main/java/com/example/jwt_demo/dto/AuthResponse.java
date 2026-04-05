@@ -1,12 +1,14 @@
 package com.example.jwt_demo.dto;
 
+import java.util.UUID;
+
 public record AuthResponse(
     User user,
     String accessToken,
     String refreshToken
 ) {
     public record User(
-        long id,
+        UUID  id,
         String email,
         String name
     ) {}
