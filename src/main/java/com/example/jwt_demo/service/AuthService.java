@@ -135,8 +135,8 @@ public class AuthService {
 
         tokenService.revokeToken(refreshToken);
 
-        String newAccessToken = jwtService.generateAccessToken(user, refreshToken);
         String newRefreshToken = jwtService.generateRefreshToken(user);
+        String newAccessToken = jwtService.generateAccessToken(user, newRefreshToken);
 
         tokenService.saveUserToken(user, newRefreshToken, TokenType.REFRESH);
 
