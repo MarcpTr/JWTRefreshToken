@@ -1,3 +1,4 @@
+
 # JWT Refresh Authentication API
 
 ### Spring Boot 3 • Spring Security 6 • JWT • MariaDB
@@ -100,7 +101,68 @@ Base path:
 | `/whoami` | Authenticated | Returns username and role            |
 
 These endpoints demonstrate fine-grained authorization using Spring Security method-level security.
+# JWT Token Structure
 
+The API uses JSON Web Tokens (JWT) following the standard JWT claims, along with a few custom claims to support authentication and token rotation.
+
+## Common Claims
+
+| Claim | Description |
+|-------|-------------|
+| `role` | User role (`ROLE_USER` or `ROLE_ADMIN`) used by Spring Security for authorization. |
+| `type` | Token type. Can be `ACCESS` or `REFRESH`. This prevents using a refresh token to access protected endpoints. |
+| `jti` | Unique identifier of the token (JWT ID). Used to uniquely identify and revoke individual tokens. |
+| `iss` | Issuer of the token. Identifies the application that generated the JWT. |
+| `sub` | Subject of the token. Contains the authenticated user's username. |
+| `aud` | Intended audience of the token. Identifies which application or service the token is meant for. |
+| `iat` | Issued At timestamp (Unix time). Indicates when the token was generated. |
+| `exp` | Expiration timestamp (Unix time). After this time the token is no longer valid. |
+
+## Access Token Additional Claim
+
+Access tokens include an additional claim:
+
+| Claim | Description |
+|-------|-------------|
+| `refresh_jti` | Contains the `jti` of the refresh token that generated the access token. This links both tokens together, making it possible to invalidate all access tokens derived from a revoked refresh token and support secure token rotation. |
+
+## Example Access Token Payload
+
+```json
+{
+  "role": "ROLE_USER",
+  "type": "ACCESS",
+  "jti": "3b1c4db5-ff8c-4d8f-8e5b-78b19d57d59a",
+  "refresh_jti": "f6db8471-7b1c-4d1d-a8cf-2e2dbd3d1844",
+  "iss": "jwt-refresh-auth-api",
+  "sub": "john_doe",
+  "aud": "jwt-refresh-auth-client",
+  "iat": 1721000000,
+  "exp": 1721000900
+}
+```
+
+## Example Refresh Token Payload
+
+```json
+{
+  "role": "ROLE_USER",
+  "type": "REFRESH",
+  "jti": "f6db8471-7b1c-4d1d-a8cf-2e2dbd3d1844",
+  "iss": "jwt-refresh-auth-api",
+  "sub": "john_doe",
+  "aud": "jwt-refresh-auth-client",
+  "iat": 1721000000,
+  "exp": 1721604800
+}
+```
+
+### Notes
+
+- Every token has a unique `jti`, allowing individual revocation.
+- The `type` claim ensures that access and refresh tokens cannot be used interchangeably.
+- The `refresh_jti` claim is only present in access tokens and creates a secure relationship between an access token and the refresh token that issued it.
+- Authorization decisions are based on the `role` claim together with Spring Security's RBAC configuration.
 # Architecture
 
 Layered architecture following clean separation of concerns:
