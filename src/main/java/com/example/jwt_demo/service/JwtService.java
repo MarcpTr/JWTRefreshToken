@@ -26,7 +26,8 @@ public class JwtService {
     private long refreshExpiration;
     @Value("${jwt.issuer}")
     private String issuer;
-
+    @Value("${jwt.audience}")
+    private String audience;
     private Key key;
 
     @PostConstruct
@@ -72,6 +73,23 @@ public class JwtService {
         return claims.getExpiration().before(new Date());
     }
 
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) throws JwtException {
+
+        final Claims claims = extractAllClaims(token);
+
+        return resolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) throws JwtException {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .requireIssuer(issuer)
+                .requireAudience(audience)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
     public String generateRefreshToken(UserDetails userDetails) {
         return generateToken(userDetails, refreshExpiration, TokenType.REFRESH, null);
     }
@@ -96,7 +114,7 @@ public class JwtService {
                 .setId(UUID.randomUUID().toString())
                 .setIssuer(issuer)
                 .setSubject(userDetails.getUsername())
-                .setAudience("api-client")
+                .setAudience(audience)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime));
 
@@ -107,22 +125,6 @@ public class JwtService {
         return builder
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) throws JwtException {
-
-        final Claims claims = extractAllClaims(token);
-
-        return resolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) throws JwtException {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .requireIssuer(issuer)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
     }
 
 }
