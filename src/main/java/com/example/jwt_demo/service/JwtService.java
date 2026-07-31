@@ -46,51 +46,8 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) throws JwtException {
-
-        final Claims claims = extractAllClaims(token);
-
-        return resolver.apply(claims);
-    }
- public String extractRefreshJti(String token) {
+    public String extractRefreshJti(String token) {
         return extractClaim(token, claims -> claims.get("refresh_jti", String.class));
-    }
-   public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(userDetails, refreshExpiration, TokenType.REFRESH, null);
-    }
-
-     public String generateAccessToken(UserDetails userDetails, String refreshToken) {
-
-        String refreshJti = extractJti(refreshToken);
-
-        return generateToken(userDetails, jwtExpiration, TokenType.ACCESS, refreshJti);
-    }
-
-
-     private String generateToken(UserDetails userDetails,
-                                 long expirationTime,
-                                 TokenType type,
-                                 String refreshJti) {
-
-        JwtBuilder builder = Jwts.builder()
-                .claim("role", ((User) userDetails).getRole().name())
-                .claim("type", type.name())
-                .setHeaderParam("typ", "JWT")
-                .setHeaderParam("version", "v1")
-                .setId(UUID.randomUUID().toString())
-                .setIssuer(issuer)
-                .setSubject(userDetails.getUsername())
-                .setAudience("api-client")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime));
-
-        if (type == TokenType.ACCESS && refreshJti != null) {
-            builder.claim("refresh_jti", refreshJti);
-        }
-
-        return builder
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails, TokenType expectedType) {
@@ -115,6 +72,50 @@ public class JwtService {
         return claims.getExpiration().before(new Date());
     }
 
+    public String generateRefreshToken(UserDetails userDetails) {
+        return generateToken(userDetails, refreshExpiration, TokenType.REFRESH, null);
+    }
+
+    public String generateAccessToken(UserDetails userDetails, String refreshToken) {
+
+        String refreshJti = extractJti(refreshToken);
+
+        return generateToken(userDetails, jwtExpiration, TokenType.ACCESS, refreshJti);
+    }
+
+    private String generateToken(UserDetails userDetails,
+            long expirationTime,
+            TokenType type,
+            String refreshJti) {
+
+        JwtBuilder builder = Jwts.builder()
+                .claim("role", ((User) userDetails).getRole().name())
+                .claim("type", type.name())
+                .setHeaderParam("typ", "JWT")
+                .setHeaderParam("version", "v1")
+                .setId(UUID.randomUUID().toString())
+                .setIssuer(issuer)
+                .setSubject(userDetails.getUsername())
+                .setAudience("api-client")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime));
+
+        if (type == TokenType.ACCESS && refreshJti != null) {
+            builder.claim("refresh_jti", refreshJti);
+        }
+
+        return builder
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) throws JwtException {
+
+        final Claims claims = extractAllClaims(token);
+
+        return resolver.apply(claims);
+    }
+
     private Claims extractAllClaims(String token) throws JwtException {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -123,4 +124,5 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
 }
