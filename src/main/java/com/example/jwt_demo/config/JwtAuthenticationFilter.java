@@ -12,6 +12,7 @@ import com.example.jwt_demo.service.JwtService;
 import com.example.jwt_demo.service.TokenService;
 import com.example.jwt_demo.service.UserService;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -52,20 +53,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-
+        Claims tokenClaims;
         try {
-            username = jwtService.extractUsername(jwt);
+            tokenClaims = jwtService.extractAllClaims(jwt);
         } catch (JwtException e) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        username = tokenClaims.getSubject();
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userService.loadUserByUsername(username);
 
             try {
-                if (!jwtService.isTokenValid(jwt, userDetails, TokenType.ACCESS)) {
+                if (!jwtService.isTokenValid(tokenClaims, userDetails, TokenType.ACCESS)) {
                     filterChain.doFilter(request, response);
                     return;
                 }
@@ -79,12 +82,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 Token refreshToken = tokenService.findByJti(refreshJti);
 
-                if ( refreshToken == null || refreshToken.isExpired() || refreshToken.isRevoked()) {
+                if (refreshToken == null || refreshToken.isExpired() || refreshToken.isRevoked()) {
                     filterChain.doFilter(request, response);
                     return;
                 }
 
-                UsernamePasswordAuthenticationToken authentication  = new UsernamePasswordAuthenticationToken(
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities());

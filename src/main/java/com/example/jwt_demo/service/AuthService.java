@@ -107,8 +107,9 @@ public class AuthService {
         String refreshToken = request.refreshToken();
 
         Claims claims;
+       
         try {
-            claims = jwtService.extractClaim(refreshToken, c -> c);
+            claims = jwtService.extractAllClaims(refreshToken);
         } catch (JwtException e) {
             throw new JwtAuthenticationException(Map.of("error", "Invalid refresh token"));
         }
@@ -128,8 +129,7 @@ public class AuthService {
         if (storedToken.getTokenType() != TokenType.REFRESH) {
             throw new JwtAuthenticationException(Map.of("error", "Invalid token type"));
         }
-
-        if (!jwtService.isTokenValid(refreshToken, user, TokenType.REFRESH)) {
+        if (!jwtService.isTokenValid(claims, user, TokenType.REFRESH)) {
             throw new JwtAuthenticationException(Map.of("error", "Invalid token"));
         }
 

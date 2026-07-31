@@ -51,18 +51,17 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get("refresh_jti", String.class));
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails, TokenType expectedType) {
+    public boolean isTokenValid(Claims tokenClaims, UserDetails userDetails, TokenType expectedType) {
         try {
-            Claims claims = extractAllClaims(token);
 
-            String username = claims.getSubject();
+            String username = tokenClaims.getSubject();
 
-            String typeStr = claims.get("type", String.class);
+            String typeStr = tokenClaims.get("type", String.class);
             TokenType type = TokenType.valueOf(typeStr);
 
             return username.equals(userDetails.getUsername())
                     && type.equals(expectedType)
-                    && !isTokenExpired(claims);
+                    && !isTokenExpired(tokenClaims);
 
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -80,7 +79,7 @@ public class JwtService {
         return resolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) throws JwtException {
+    public Claims extractAllClaims(String token) throws JwtException {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .requireIssuer(issuer)
