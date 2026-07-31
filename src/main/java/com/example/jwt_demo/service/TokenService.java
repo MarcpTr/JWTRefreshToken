@@ -6,6 +6,8 @@ import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.model.enums.TokenType;
 import com.example.jwt_demo.repository.TokenRepository;
+
+import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,9 +27,11 @@ public class TokenService {
 
     public void saveUserToken(User user, String jwtToken, TokenType tokenType) {
         if (tokenType != TokenType.REFRESH) {
-        return;
-    }
-        String jti = jwtService.extractJti(jwtToken);
+            return;
+        }
+        Claims tokenClaims = jwtService.extractAllClaims(jwtToken);
+
+        String jti = jwtService.extractJti(tokenClaims);
 
         var token = Token.builder()
                 .user(user)
@@ -39,10 +43,12 @@ public class TokenService {
                 .build();
         tokenRepository.save(token);
     }
-public Token findByJti(String jti) {
-    return tokenRepository.findByJti(jti)
-            .orElseThrow(() -> new BadCredentialsException("Invalid session"));
-}
+
+    public Token findByJti(String jti) {
+        return tokenRepository.findByJti(jti)
+                .orElseThrow(() -> new BadCredentialsException("Invalid session"));
+    }
+
     public void revokeAllUserTokens(User user) {
         List<Token> validTokens = tokenRepository.findAllByUserAndExpiredFalseAndRevokedFalse(user);
         if (validTokens.isEmpty())

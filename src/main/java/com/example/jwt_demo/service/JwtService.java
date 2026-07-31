@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.example.jwt_demo.model.User;
 import com.example.jwt_demo.model.enums.TokenType;
+
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
@@ -32,51 +34,45 @@ public class JwtService {
 
     @PostConstruct
     public void init() {
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public String extractUsername(Claims tokenClaims) {
+        return extractClaim(tokenClaims, Claims::getSubject);
     }
 
-    public String extractJti(String token) {
-        return extractClaim(token, Claims::getId);
+    public String extractJti(Claims tokenClaims) {
+        return extractClaim(tokenClaims, Claims::getId);
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Date extractExpiration(Claims tokenClaims) {
+        return extractClaim(tokenClaims, Claims::getExpiration);
     }
 
-    public String extractRefreshJti(String token) {
-        return extractClaim(token, claims -> claims.get("refresh_jti", String.class));
+    public String extractRefreshJti(Claims tokenClaims) {
+        return extractClaim(tokenClaims, claims -> claims.get("refresh_jti", String.class));
     }
 
-    public boolean isTokenValid(Claims tokenClaims, UserDetails userDetails, TokenType expectedType) {
+    public boolean isTokenValid(Claims tokenClaims, TokenType expectedType) {
         try {
 
-            String username = tokenClaims.getSubject();
-
             String typeStr = tokenClaims.get("type", String.class);
+
+            if (typeStr == null) {
+                return false;
+            }
+
             TokenType type = TokenType.valueOf(typeStr);
 
-            return username.equals(userDetails.getUsername())
-                    && type.equals(expectedType)
-                    && !isTokenExpired(tokenClaims);
+            return type.equals(expectedType);
 
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-    private boolean isTokenExpired(Claims claims) {
-        return claims.getExpiration().before(new Date());
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) throws JwtException {
-
-        final Claims claims = extractAllClaims(token);
-
-        return resolver.apply(claims);
+    public <T> T extractClaim(Claims tokenClaims, Function<Claims, T> resolver) throws JwtException {
+        return resolver.apply(tokenClaims);
     }
 
     public Claims extractAllClaims(String token) throws JwtException {
@@ -93,9 +89,9 @@ public class JwtService {
         return generateToken(userDetails, refreshExpiration, TokenType.REFRESH, null);
     }
 
-    public String generateAccessToken(UserDetails userDetails, String refreshToken) {
+    public String generateAccessToken(UserDetails userDetails, Claims tokenClaimss) {
 
-        String refreshJti = extractJti(refreshToken);
+        String refreshJti = extractJti(tokenClaimss);
 
         return generateToken(userDetails, jwtExpiration, TokenType.ACCESS, refreshJti);
     }

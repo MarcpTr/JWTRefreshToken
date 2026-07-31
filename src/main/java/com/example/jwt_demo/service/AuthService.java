@@ -60,7 +60,9 @@ public class AuthService {
         tokenService.revokeAllUserTokens(savedUser);
 
         String refreshToken = jwtService.generateRefreshToken(savedUser);
-        String accessToken = jwtService.generateAccessToken(savedUser, refreshToken);
+        Claims tokenClaims = jwtService.extractAllClaims(refreshToken);
+
+        String accessToken = jwtService.generateAccessToken(savedUser, tokenClaims);
 
         tokenService.saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
 
@@ -93,7 +95,9 @@ public class AuthService {
         tokenService.enforceSessionLimit(user, maxSessions);
 
         String refreshToken = jwtService.generateRefreshToken(user);
-        String accessToken = jwtService.generateAccessToken(user, refreshToken);
+        Claims tokenClaims = jwtService.extractAllClaims(refreshToken);
+
+        String accessToken = jwtService.generateAccessToken(user, tokenClaims);
 
         tokenService.saveUserToken(user, refreshToken, TokenType.REFRESH);
 
@@ -107,7 +111,7 @@ public class AuthService {
         String refreshToken = request.refreshToken();
 
         Claims claims;
-       
+
         try {
             claims = jwtService.extractAllClaims(refreshToken);
         } catch (JwtException e) {
@@ -129,14 +133,16 @@ public class AuthService {
         if (storedToken.getTokenType() != TokenType.REFRESH) {
             throw new JwtAuthenticationException(Map.of("error", "Invalid token type"));
         }
-        if (!jwtService.isTokenValid(claims, user, TokenType.REFRESH)) {
+        if (!jwtService.isTokenValid(claims, TokenType.REFRESH)) {
             throw new JwtAuthenticationException(Map.of("error", "Invalid token"));
         }
 
         tokenService.revokeToken(refreshToken);
 
         String newRefreshToken = jwtService.generateRefreshToken(user);
-        String newAccessToken = jwtService.generateAccessToken(user, newRefreshToken);
+        Claims tokenClaims = jwtService.extractAllClaims(newRefreshToken);
+
+        String newAccessToken = jwtService.generateAccessToken(user, tokenClaims);
 
         tokenService.saveUserToken(user, newRefreshToken, TokenType.REFRESH);
 

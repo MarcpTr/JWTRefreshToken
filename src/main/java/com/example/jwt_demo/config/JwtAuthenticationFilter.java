@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -64,25 +65,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         username = tokenClaims.getSubject();
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (!jwtService.isTokenValid(tokenClaims, TokenType.ACCESS)) {
+                SecurityContextHolder.clearContext();
 
-            UserDetails userDetails = userService.loadUserByUsername(username);
+                filterChain.doFilter(request, response);
+                return;
+            }
 
+            UserDetails userDetails;
             try {
-                if (!jwtService.isTokenValid(tokenClaims, userDetails, TokenType.ACCESS)) {
-                    filterChain.doFilter(request, response);
-                    return;
-                }
+                userDetails = userService.loadUserByUsername(username);
 
-                String refreshJti = jwtService.extractRefreshJti(jwt);
+            } catch (UsernameNotFoundException e) {
+                SecurityContextHolder.clearContext();
+                filterChain.doFilter(request, response);
+                return;
+            }
+            try {
+
+                String refreshJti = jwtService.extractRefreshJti(tokenClaims);
 
                 if (refreshJti == null) {
-                    filterChain.doFilter(request, response);
-                    return;
-                }
+                    SecurityContextHolder.clearContext();
 
-                Token refreshToken = tokenService.findByJti(refreshJti);
-
-                if (refreshToken == null || refreshToken.isExpired() || refreshToken.isRevoked()) {
                     filterChain.doFilter(request, response);
                     return;
                 }
