@@ -79,22 +79,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 Token refreshToken = tokenService.findByJti(refreshJti);
 
-                if (refreshToken.isExpired() || refreshToken.isRevoked()) {
+                if ( refreshToken == null || refreshToken.isExpired() || refreshToken.isRevoked()) {
                     filterChain.doFilter(request, response);
                     return;
                 }
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                UsernamePasswordAuthenticationToken authentication  = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities());
 
-                authToken.setDetails(
+                authentication.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            } catch (Exception e) {
+            } catch (JwtException e) {
                 SecurityContextHolder.clearContext();
                 filterChain.doFilter(request, response);
                 return;
