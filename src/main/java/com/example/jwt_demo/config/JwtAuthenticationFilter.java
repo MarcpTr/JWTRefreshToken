@@ -26,7 +26,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.example.jwt_demo.model.Token;
 import com.example.jwt_demo.model.enums.TokenType;
 import java.io.IOException;
 
@@ -36,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserService userService;
-    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
