@@ -9,7 +9,6 @@ package com.example.jwt_demo.config;
  * Se ejecuta una vez por cada petición HTTP.
  */
 import com.example.jwt_demo.service.JwtService;
-import com.example.jwt_demo.service.TokenService;
 import com.example.jwt_demo.service.UserService;
 
 import io.jsonwebtoken.Claims;
